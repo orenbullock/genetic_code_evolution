@@ -3,6 +3,18 @@ import random
 import json
 import argparse
 
+def get_dicts(trans_table):
+    # Forms codon (key, str) to amino acid (value, str) dictionary using prexisting Bio.Data dictionary
+    codon_to_aa_dict = dict(CodonTable.unambiguous_dna_by_id[trans_table].forward_table)
+    
+    # Creates an amino acid (key, str) to codon (value, lst) dictionary using initial codon to amino acid dictionary 
+    aa_to_codon_dict = {}
+    for codon,aminoacid in codon_to_aa_dict.items():
+        if aminoacid not in aa_to_codon_dict.keys():
+            aa_to_codon_dict[aminoacid] = []
+        aa_to_codon_dict[aminoacid].append(codon)
+    return codon_to_aa_dict, aa_to_codon_dict
+
 def shuffle_aminoacid_dicts(ns_to_shuffle, shuffle = True, trans_table = 11):
     
     '''
@@ -24,17 +36,8 @@ def shuffle_aminoacid_dicts(ns_to_shuffle, shuffle = True, trans_table = 11):
     1. All amino acids and corresponding codons shuffled together; returns two dictionaries
     2. Individual amino acid with codon groups of size n will be shuffled together; returns two dictionaries
     '''
-    
-    # Forms codon (key, str) to amino acid (value, str) dictionary using prexisting Bio.Data dictionary
-    codon_to_aa_dict = dict(CodonTable.unambiguous_dna_by_id[trans_table].forward_table)
-    
-    # Creates an amino acid (key, str) to codon (value, lst) dictionary using initial codon to amino acid dictionary 
-    aa_to_codon_dict = {}
-    for codon,aminoacid in codon_to_aa_dict.items():
-        if aminoacid not in aa_to_codon_dict.keys():
-            aa_to_codon_dict[aminoacid] = []
-        aa_to_codon_dict[aminoacid].append(codon)
-    
+    codon_to_aa_dict, aa_to_codon_dict = get_dicts(trans_table)
+
     # Removes any unwanted amino acids (with n codons, where n is not in our ns_to_shuffle) 
     # from the dictionaries before shuffling
     for aminoacid,codons in list(aa_to_codon_dict.items()):
@@ -82,7 +85,7 @@ if __name__ == "__main__":
             
             ## 1. Run this line if you want all amino acids shuffled with each other ##
 
-            aa_to_codon,codon_to_aa = shuffle_aminoacid_dicts([1,2,3,5,6])
+            aa_to_codon,codon_to_aa = shuffle_aminoacid_dicts([1,2,3,4,6])
             
         elif args.mode == "mode2":
             
